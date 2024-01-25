@@ -1,8 +1,9 @@
 import { useState } from "react";
 import GrowingTextArea from "./growing-text-area";
+import ImageUploadComponent from "./image-selection";
 
 type ExpandingInputProp = {
-  onSubmit: () => void;
+  onSubmit: (value: string, file?: File) => void;
   isStreaming: boolean;
   onStop: () => void;
 };
@@ -12,19 +13,33 @@ export default function ExpandingInput({
   onStop,
 }: ExpandingInputProp) {
   const [content, setContent] = useState("");
+  const [selectedImage, setSelectedImage] = useState<File | undefined>(undefined);
 
+  const submit = (value: string) => {
+    onSubmit?.(value, selectedImage);
+    setContent("");
+    setSelectedImage(undefined);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    submit(content);
+  };
   return (
     <div className="w-full my-10">
       <form
         className="w-full flex flex-col gap-y-4 px-4 relative max-w-5xl mx-auto"
-        onSubmit={onSubmit}
+        onSubmit={handleSubmit}
       >
         {/* Image input */}
-        <div></div>
+        <ImageUploadComponent
+          selectedImage={selectedImage}
+          setSelectedImage={setSelectedImage}
+        />
 
         {/* text input */}
         <GrowingTextArea
-          className="w-full py-2 pl-4 pr-[40px] min-h-[40px] overflow-hidden border border-gray-300 bg-slate-200 rounded-xl outline-none resize-none  overflow-x-clip"
+          className="w-full py-2 px-[42px] min-h-[40px] overflow-hidden border border-gray-300 bg-slate-50 rounded-xl outline-none resize-none  overflow-x-clip"
           // className="w-full bg-transparent border border-gray-500 rounded-2xl outline-none resize-none pl-12 pr-14 py-4 scrollbar-content overflow-y-auto overflow-x-clip overscroll-contain"
           value={content}
           onChange={(e: any) => setContent(e.target.value)}
